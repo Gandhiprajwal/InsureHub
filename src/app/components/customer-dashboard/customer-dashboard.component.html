@@ -1,0 +1,52 @@
+<app-navbar />
+<div class="ih-shell">
+  <h2 class="ih-page-title">Hi {{ user()?.name?.split(' ')?.[0] }} 👋</h2>
+  <p class="ih-subtitle">Your insurance overview</p>
+
+  <div class="row g-3 my-3">
+    <div class="col-6 col-lg-3">
+      <div class="stat-card primary">
+        <div class="label">Total Policies</div>
+        <div class="value">{{ policies().length }}</div>
+        <div class="icon"><i class="bi bi-files"></i></div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="stat-card success">
+        <div class="label">Active</div>
+        <div class="value">{{ counts().active }}</div>
+        <div class="icon"><i class="bi bi-shield-check"></i></div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="stat-card warning">
+        <div class="label">Due Soon</div>
+        <div class="value">{{ counts().due }}</div>
+        <div class="icon"><i class="bi bi-clock-history"></i></div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="stat-card danger">
+        <div class="label">Lapsed</div>
+        <div class="value">{{ counts().lapsed }}</div>
+        <div class="icon"><i class="bi bi-shield-exclamation"></i></div>
+      </div>
+    </div>
+  </div>
+
+  @if (agent(); as a) {
+    <div class="ih-card mb-4 d-flex align-items-center gap-3 flex-wrap">
+      <div class="ih-avatar">{{ a.name | appInitials }}</div>
+      <div class="flex-grow-1">
+        <div class="text-muted-2" style="font-size:.78rem">YOUR AGENT</div>
+        <div style="font-weight:600">{{ a.name }}</div>
+        <div class="text-muted-2" style="font-size:.85rem">
+          {{ a.email }} · {{ a.phone | appPhone }} · Agent ID {{ a.agentId }}
+        </div>
+      </div>
+    </div>
+  }
+
+  <h5 style="font-weight:700;margin-bottom:.75rem">My Policies</h5>
+  <app-policy-list [policies]="policies()" [readonly]="false" />
+</div>

@@ -1,0 +1,28 @@
+<nav class="ih-navbar">
+  <a class="brand" [href]="home()">
+    <span class="dot"><i class="bi bi-shield-fill-check"></i></span>
+    InsureHub
+  </a>
+  <div class="d-flex align-items-center gap-3">
+    @if (user(); as u) {
+      <div class="d-flex align-items-center gap-2" (click)="goToProfile()" style="cursor: pointer;" title="View Profile">
+        <div class="text-end d-none d-sm-block">
+          <div style="font-weight:600;font-size:.9rem; line-height: 1.2;">{{ u.name }}</div>
+          <div class="text-muted-2" style="font-size:.75rem">
+            {{ u.role === 'agent' ? 'Agent · ' + u.agentId : 'Customer · Agent ' + u.agentId }}
+          </div>
+        </div>
+        <div class="ih-avatar">{{ u.name | appInitials }}</div>
+      </div>
+      <div class="vr mx-1 d-none d-sm-block" style="height: 24px; color: var(--ih-border);"></div>
+      <button class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1" (click)="goToProfile()" title="Profile">
+        <i class="bi bi-person-fill"></i>
+        <span class="d-none d-sm-inline">Profile</span>
+      </button>
+      <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" (click)="logout()" title="Logout">
+        <i class="bi bi-box-arrow-right"></i>
+        <span class="d-none d-sm-inline">Logout</span>
+      </button>
+    }
+  </div>
+</nav>
