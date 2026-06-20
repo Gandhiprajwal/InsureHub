@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, Inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -14,16 +14,16 @@ import { PolicyType, PurchasePolicyRequest } from '../../models/models';
   styleUrls: ['./purchase-dialog.component.css']
 })
 export class PurchaseDialogComponent {
-  dialogRef = inject(MatDialogRef<PurchaseDialogComponent>);
-  private data = inject(MAT_DIALOG_DATA);
-  private policyService = inject(PolicyService);
-  private snack = inject(MatSnackBar);
-  private fb = inject(FormBuilder);
-
   purchaseForm: FormGroup;
   submitting = signal(false);
 
-  constructor() {
+  constructor(
+    public dialogRef: MatDialogRef<PurchaseDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    private policyService: PolicyService,
+    private snack: MatSnackBar,
+    private fb: FormBuilder
+  ) {
     const todayStr = new Date().toISOString().substring(0, 10);
     this.purchaseForm = this.fb.group({
       policyType: ['LIFEINSURANCE', [Validators.required]],

@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, OnInit } from '@angular/core';
+import { Component, computed, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { ProfileService } from '../../services/profile.service';
@@ -19,12 +19,16 @@ import { CustomerDetails, CustomerPolicyResponse, AgentProfile } from '../../mod
   styleUrls: ['./customer-dashboard.component.css']
 })
 export class CustomerDashboardComponent implements OnInit {
-  private auth = inject(AuthService);
-  private profileService = inject(ProfileService);
-  private policyService = inject(PolicyService);
-  private dialog = inject(MatDialog);
+  user: any;
 
-  user = this.auth.current;
+  constructor(
+    private auth: AuthService,
+    private profileService: ProfileService,
+    private policyService: PolicyService,
+    private dialog: MatDialog
+  ) {
+    this.user = this.auth.current;
+  }
 
   // Signal stores
   customerDetails = signal<CustomerDetails | null>(null);
@@ -40,7 +44,7 @@ export class CustomerDashboardComponent implements OnInit {
     this.profileService.getProfile().subscribe({
       next: (profile) => {
         this.customerDetails.set(profile);
-        this.loadAgent(profile.agentId);
+        this.loadAgent();
       },
       error: () => {}
     });
@@ -54,21 +58,13 @@ export class CustomerDashboardComponent implements OnInit {
     });
   }
 
-  loadAgent(agentId?: number) {
+  loadAgent() {
     // Fetch assigned agent details
     this.policyService.getCustomerAgent().subscribe({
       next: (agent) => {
         this.agentDetails.set(agent);
       },
-      error: () => {
-        // Fallback: fetch by agentId if returned in details
-        if (agentId) {
-          this.policyService.getAgentDetails(agentId).subscribe({
-            next: (agent) => this.agentDetails.set(agent),
-            error: () => {}
-          });
-        }
-      }
+      error: () => {}
     });
   }
 

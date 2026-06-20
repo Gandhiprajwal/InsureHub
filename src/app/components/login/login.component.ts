@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -14,9 +14,11 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
-  private auth = inject(AuthService);
-  private router = inject(Router);
-  private snack = inject(MatSnackBar);
+  constructor(
+    private auth: AuthService,
+    private router: Router,
+    private snack: MatSnackBar
+  ) {}
 
   step = signal<number>(1); // 1 = Credentials, 2 = OTP check
   role = signal<Role>('AGENT');

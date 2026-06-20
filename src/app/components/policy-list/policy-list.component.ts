@@ -1,7 +1,8 @@
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
-import { Component, inject, Input, Output, EventEmitter, signal, computed } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, computed } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { RenewDialogComponent } from '../renew-dialog/renew-dialog.component';
+import { InsuranceTypePipe } from '../../pipes/insurance-type.pipe';
 
 export interface NormalizedPolicy {
   id: string;
@@ -13,20 +14,22 @@ export interface NormalizedPolicy {
   renewalDate: string;
   dueDate: string;
   status: 'Active' | 'Due' | 'Lapsed';
+  nominee?: string;
+  lastPayment?: string;
   raw: any;
 }
 
 @Component({
   selector: 'app-policy-list',
   standalone: true,
-  imports: [CommonModule, DatePipe, DecimalPipe, MatDialogModule],
+  imports: [CommonModule, DatePipe, DecimalPipe, MatDialogModule, InsuranceTypePipe],
   templateUrl: './policy-list.component.html',
   styleUrls: ['./policy-list.component.css']
 })
 export class PolicyListComponent {
-  private dialog = inject(MatDialog);
-
   private _policies = signal<any[]>([]);
+
+  constructor(private dialog: MatDialog) {}
 
   @Input() set policies(value: any[]) {
     this._policies.set(value || []);
@@ -58,6 +61,7 @@ export class PolicyListComponent {
       const startDate = p.policyStartDate || p.startDate || new Date().toISOString();
       const renewalDate = p.policyEndDate || p.renewalDate || new Date(new Date(startDate).setFullYear(new Date(startDate).getFullYear() + 1)).toISOString();
       const dueDate = p.dueDate || new Date(new Date(renewalDate).setDate(new Date(renewalDate).getDate() + 30)).toISOString();
+      const lastPayment = p.lastPremiumPaymentDate || p.lastPremiumDate || null;
 
       return {
         id: p.policyId || p.id,
@@ -69,6 +73,8 @@ export class PolicyListComponent {
         renewalDate,
         dueDate,
         status,
+        nominee: p.nominee || '—',
+        lastPayment,
         raw: p
       };
     });

@@ -1,25 +1,20 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, Inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { PolicyService } from '../../services/policy.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RenewPreviewResponse } from '../../models/models';
+import { InsuranceTypePipe } from '../../pipes/insurance-type.pipe';
 
 @Component({
   selector: 'app-renew-dialog',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatDialogModule],
+  imports: [CommonModule, ReactiveFormsModule, MatDialogModule, InsuranceTypePipe],
   templateUrl: './renew-dialog.component.html',
   styleUrls: ['./renew-dialog.component.css']
 })
 export class RenewDialogComponent implements OnInit {
-  dialogRef = inject(MatDialogRef<RenewDialogComponent>);
-  private data = inject(MAT_DIALOG_DATA);
-  private policyService = inject(PolicyService);
-  private snack = inject(MatSnackBar);
-  private fb = inject(FormBuilder);
-
   loading = signal(true);
   submitting = signal(false);
   preview = signal<RenewPreviewResponse | null>(null);
@@ -28,7 +23,13 @@ export class RenewDialogComponent implements OnInit {
   months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
   years: string[] = [];
 
-  constructor() {
+  constructor(
+    public dialogRef: MatDialogRef<RenewDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    private policyService: PolicyService,
+    private snack: MatSnackBar,
+    private fb: FormBuilder
+  ) {
     const currentYear = new Date().getFullYear();
     for (let i = 0; i < 15; i++) {
       this.years.push(String(currentYear + i));
@@ -82,14 +83,7 @@ export class RenewDialogComponent implements OnInit {
     });
   }
 
-  formatType(type: string | undefined): string {
-    if (!type) return '—';
-    if (type === 'LIFEINSURANCE') return 'Life Insurance';
-    if (type === 'HEALTHINSURANCE') return 'Health Insurance';
-    if (type === 'HOMEINSURANCE') return 'Home Insurance';
-    if (type === 'VEHICLEINSURANCE') return 'Vehicle Insurance';
-    return type;
-  }
+
 
   getStatusClass(status: string | undefined) {
     if (!status) return '';

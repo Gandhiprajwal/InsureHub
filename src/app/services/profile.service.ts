@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { AuthService } from './auth.service';
@@ -9,9 +9,12 @@ const USE_MOCK = environment.useMock;
 
 @Injectable({ providedIn: 'root' })
 export class ProfileService {
-  private http = inject(HttpClient);
-  private auth = inject(AuthService);
   private readonly apiUrl = environment.apiUrl;
+
+  constructor(
+    private http: HttpClient,
+    private auth: AuthService
+  ) {}
 
   getProfile(): Observable<any> {
     if (USE_MOCK) {

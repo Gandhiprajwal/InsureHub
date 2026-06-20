@@ -22,19 +22,31 @@
       <form (ngSubmit)="submitDetails()" #detailsForm="ngForm">
         <div class="mb-3">
           <label class="form-label">Full Name</label>
-          <input class="form-control" name="name" [ngModel]="name()" (ngModelChange)="name.set($event)" required placeholder="John Doe" />
+          <input class="form-control" name="name" [ngModel]="name()" (ngModelChange)="name.set($event)" required pattern="[A-Z][a-z]+(\s[A-Z][a-z]+)*" placeholder="John Doe" #nameInput="ngModel" [class.is-invalid]="nameInput.touched && nameInput.invalid" />
+          <div class="invalid-feedback" *ngIf="nameInput.touched && nameInput.invalid">
+            Name must start with an uppercase letter followed by lowercase letters (e.g. John Doe).
+          </div>
         </div>
         <div class="mb-3">
           <label class="form-label">Email Address</label>
-          <input class="form-control" type="email" name="email" [ngModel]="email()" (ngModelChange)="email.set($event)" required placeholder="name@example.com" />
+          <input class="form-control" type="email" name="email" [ngModel]="email()" (ngModelChange)="email.set($event)" required pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" placeholder="name@example.com" #emailInput="ngModel" [class.is-invalid]="emailInput.touched && emailInput.invalid" />
+          <div class="invalid-feedback" *ngIf="emailInput.touched && emailInput.invalid">
+            Please enter a valid email address.
+          </div>
         </div>
         <div class="mb-3">
           <label class="form-label">Contact Number</label>
-          <input class="form-control" name="phone" [ngModel]="phone()" (ngModelChange)="phone.set($event)" required placeholder="9876543210" />
+          <input class="form-control" name="phone" [ngModel]="phone()" (ngModelChange)="phone.set($event)" required pattern="[6-9][0-9]{9}" placeholder="9876543210" #phoneInput="ngModel" [class.is-invalid]="phoneInput.touched && phoneInput.invalid" />
+          <div class="invalid-feedback" *ngIf="phoneInput.touched && phoneInput.invalid">
+            Please enter a valid 10-digit contact number starting with 6, 7, 8, or 9.
+          </div>
         </div>
         <div class="mb-3">
           <label class="form-label">Password</label>
-          <input class="form-control" type="password" name="password" [ngModel]="password()" (ngModelChange)="password.set($event)" required minlength="4" placeholder="••••••••" />
+          <input class="form-control" type="password" name="password" [ngModel]="password()" (ngModelChange)="password.set($event)" required pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?&quot;:{}|<>]).{8,}" placeholder="••••••••" #passwordInput="ngModel" [class.is-invalid]="passwordInput.touched && passwordInput.invalid" />
+          <div class="invalid-feedback" *ngIf="passwordInput.touched && passwordInput.invalid">
+            Password must be at least 8 characters, containing 1 uppercase, 1 lowercase, and 1 special character.
+          </div>
         </div>
 
         <div *ngIf="role() === 'CUSTOMER'" class="mb-3">

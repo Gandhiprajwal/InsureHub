@@ -1,4 +1,4 @@
-import { Component, computed, inject, Input, signal, OnInit } from '@angular/core';
+import { Component, computed, Input, signal, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { PolicyService } from '../../services/policy.service';
@@ -16,10 +16,12 @@ import { AgentCustomerResponse, AgentPolicyResponse } from '../../models/models'
   styleUrls: ['./customer-detail.component.css']
 })
 export class CustomerDetailComponent implements OnInit {
-  private policyService = inject(PolicyService);
-  private router = inject(Router);
-
   private _id = signal<string>('');
+
+  constructor(
+    private policyService: PolicyService,
+    private router: Router
+  ) {}
   
   @Input() set id(value: string) {
     this._id.set(value);
@@ -43,8 +45,8 @@ export class CustomerDetailComponent implements OnInit {
       next: (customers) => this.customersList.set(customers)
     });
 
-    // 2. Fetch agent's policy list
-    this.policyService.getAgentPolicies().subscribe({
+    // 2. Fetch specific customer's policy list
+    this.policyService.getAgentCustomerPolicies(this._id()).subscribe({
       next: (policies) => this.policiesList.set(policies)
     });
   }
@@ -61,7 +63,7 @@ export class CustomerDetailComponent implements OnInit {
   });
 
   policies = computed(() => {
-    return this.policiesList().filter((p: any) => String(p.customerId) === String(this._id()));
+    return this.policiesList();
   });
 
   totalPremium = computed(() => {

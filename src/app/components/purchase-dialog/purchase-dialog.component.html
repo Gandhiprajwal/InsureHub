@@ -63,14 +63,16 @@
         <label class="form-label-custom">Term Duration (Years)</label>
         <div class="input-group-custom">
           <span class="input-icon"><i class="bi bi-hourglass-split"></i></span>
-          <input type="number" 
-                 class="form-control-custom" 
-                 formControlName="termInYears" 
-                 placeholder="e.g. 10" 
-                 [class.is-invalid]="f['termInYears'].touched && f['termInYears'].invalid" />
+          <select class="form-control-custom" formControlName="termInYears" [class.is-invalid]="f['termInYears'].touched && f['termInYears'].invalid">
+            <option [value]="5">5 Years</option>
+            <option [value]="10">10 Years</option>
+            <option [value]="15">15 Years</option>
+            <option [value]="20">20 Years</option>
+            <option [value]="25">25 Years</option>
+          </select>
         </div>
         <div class="invalid-feedback-custom" *ngIf="f['termInYears'].touched && f['termInYears'].invalid">
-          Limit 1 - 50 yrs.
+          Please select a valid term.
         </div>
       </div>
     </div>

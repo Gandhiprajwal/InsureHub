@@ -76,7 +76,13 @@ export interface AgentCustomerResponse {
   name: string;
   email: string;
   contact: string;
+  totalPolicies?: number;
+  activePolicies?: number;
+  lapsedPolicies?: number;
+  totalPremium?: number;
 }
+
+
 
 export interface AgentPolicyResponse {
   policyId: string;
@@ -85,14 +91,23 @@ export interface AgentPolicyResponse {
   policyEndDate: string;
   premiumAmount: number;
   policyStatus: PolicyStatus;
+  customerId?: number;
+  nominee?: string;
+  lastPremiumPaymentDate?: string;
+  lastPremiumDate?: string;
 }
 
 export interface CustomerPolicyResponse {
   policyId: string;
   policyType: PolicyType;
+  policyStartDate?: string;
+  policyEndDate?: string;
   premiumAmount: number;
   policyStatus: PolicyStatus;
   customerId: number;
+  nominee?: string;
+  lastPremiumPaymentDate?: string;
+  lastPremiumDate?: string;
 }
 
 export interface PurchasePolicyRequest {

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
@@ -12,11 +12,19 @@ import { InitialsPipe } from '../../pipes/initials.pipe';
   styleUrls: ['./navbar.component.css']
 })
 export class NavbarComponent {
-  private auth = inject(AuthService);
-  private router = inject(Router);
+  user: any;
 
-  user = this.auth.current;
-  home = () => (this.auth.current() ? (this.auth.current()?.role?.toUpperCase() === 'AGENT' ? '/agent' : '/customer') : '/');
+  constructor(
+    private auth: AuthService,
+    private router: Router
+  ) {
+    this.user = this.auth.current;
+  }
+
+  home(): string {
+    const u = this.auth.current();
+    return u ? (u.role?.toUpperCase() === 'AGENT' ? '/agent' : '/customer') : '/';
+  }
 
   goToProfile() {
     this.router.navigate(['/profile']);

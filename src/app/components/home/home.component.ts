@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, effect } from '@angular/core';
+import { Component, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -12,11 +12,16 @@ import { AuthService } from '../../services/auth.service';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent {
-  private auth = inject(AuthService);
-  private router = inject(Router);
+  isLoggedIn: any;
+  currentUser: any;
 
-  isLoggedIn = this.auth.isLoggedIn;
-  currentUser = this.auth.current;
+  constructor(
+    private auth: AuthService,
+    private router: Router
+  ) {
+    this.isLoggedIn = this.auth.isLoggedIn;
+    this.currentUser = this.auth.current;
+  }
 
   // FAQ Accordion index
   activeFaq = signal<number | null>(null);

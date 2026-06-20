@@ -12,7 +12,7 @@
                         [class.bi-bandaid-fill]="p.type === 'Health'"
                         [class.bi-house-fill]="p.type === 'Home'"
                         [class.bi-car-front-fill]="p.type === 'Vehicle'"></i>
-          {{ p.type }} Insurance
+          {{ p.type | insuranceType }}
         </span>
         <span [ngSwitch]="status(p)">
           <span *ngSwitchCase="'Active'" class="badge-status badge-active"><span class="pip"></span>Active</span>
@@ -40,6 +40,18 @@
         <div class="col-6">
           <div class="text-muted-2" style="font-size:.75rem">Renewal Date</div>
           <div style="font-weight:600">{{ p.renewalDate | date:'mediumDate' }}</div>
+        </div>
+        <div class="col-12 border-top mt-2 pt-2">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="text-muted-2" style="font-size:.75rem">Nominee</div>
+              <div style="font-weight:600; color: #1e1b4b;">{{ p.nominee }}</div>
+            </div>
+            <div *ngIf="p.lastPayment" class="text-end">
+              <div class="text-muted-2" style="font-size:.75rem">Last Premium Date</div>
+              <div style="font-weight:600; color: #1e1b4b;">{{ p.lastPayment | date:'mediumDate' }}</div>
+            </div>
+          </div>
         </div>
       </div>
 

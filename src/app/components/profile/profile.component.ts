@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, OnInit } from '@angular/core';
+import { Component, computed, signal, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -18,13 +18,7 @@ import { AgentProfile, CustomerDetails } from '../../models/models';
   styleUrls: ['./profile.component.css']
 })
 export class ProfileComponent implements OnInit {
-  private auth = inject(AuthService);
-  private profileService = inject(ProfileService);
-  private policyService = inject(PolicyService);
-  private router = inject(Router);
-  private fb = inject(FormBuilder);
-
-  user = this.auth.current;
+  user: any;
   profileForm!: FormGroup;
 
   saving = signal(false);
@@ -40,11 +34,18 @@ export class ProfileComponent implements OnInit {
   agentActivePolicies = signal(0);
   customerPoliciesCount = signal(0);
 
-  constructor() {
+  constructor(
+    private auth: AuthService,
+    private profileService: ProfileService,
+    private policyService: PolicyService,
+    private router: Router,
+    private fb: FormBuilder
+  ) {
+    this.user = this.auth.current;
     this.profileForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
-      phone: ['', [Validators.required, Validators.pattern(/^\+?[0-9\s-]{10,15}$/)]]
+      phone: ['', [Validators.required, Validators.pattern(/^[6-9][0-9]{9}$/)]]
     });
   }
 
@@ -90,21 +91,12 @@ export class ProfileComponent implements OnInit {
       }
     });
 
-    // 2. Load assigned agent details using getCustomerAgent() or agentId from response if available
+    // 2. Load assigned agent details using getCustomerAgent()
     this.policyService.getCustomerAgent().subscribe({
       next: (agent) => {
         this.assignedAgent.set(agent);
       },
-      error: () => {
-        // Fallback: If no direct endpoint, and customer object has agentId
-        const agentId = (customer as any).agentId;
-        if (agentId) {
-          this.policyService.getAgentDetails(agentId).subscribe({
-            next: (agent) => this.assignedAgent.set(agent),
-            error: () => {}
-          });
-        }
-      }
+      error: () => {}
     });
   }
 
@@ -116,11 +108,10 @@ export class ProfileComponent implements OnInit {
       }
     });
 
-    // Load agent's active policies count
-    this.policyService.getAgentPolicies().subscribe({
-      next: (policies) => {
-        const active = policies.filter((p) => p.policyStatus === 'ACTIVE' || p.policyStatus === 'DUE').length;
-        this.agentActivePolicies.set(active);
+    // Load agent's dashboard stats for active policies count
+    this.policyService.getAgentDashboardStats().subscribe({
+      next: (stats) => {
+        this.agentActivePolicies.set(stats.activePolicies || 0);
       }
     });
   }

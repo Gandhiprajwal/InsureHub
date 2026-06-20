@@ -19,7 +19,7 @@
         </div>
         <div class="col-6">
           <span class="text-muted-2">Type</span>
-          <div class="fw-semibold text-truncate">{{ formatType(preview()?.policyType) }}</div>
+          <div class="fw-semibold text-truncate">{{ preview()?.policyType | insuranceType }}</div>
         </div>
         <div class="col-6">
           <span class="text-muted-2">Original Premium</span>

@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import {
@@ -18,8 +18,9 @@ const USE_MOCK = environment.useMock;
 
 @Injectable({ providedIn: 'root' })
 export class PolicyService {
-  private http = inject(HttpClient);
   private readonly apiUrl = environment.apiUrl;
+
+  constructor(private http: HttpClient) {}
 
   private mockPolicies: any[] = [
     {
@@ -29,7 +30,9 @@ export class PolicyService {
       policyEndDate: '2031-01-01',
       premiumAmount: 5000,
       policyStatus: 'ACTIVE',
-      customerId: 2001
+      customerId: 2001,
+      nominee: 'Jane Doe',
+      lastPremiumPaymentDate: '2026-01-01'
     },
     {
       policyId: 'POL-456',
@@ -38,7 +41,9 @@ export class PolicyService {
       policyEndDate: '2026-06-15',
       premiumAmount: 8500,
       policyStatus: 'LAPSED',
-      customerId: 2001
+      customerId: 2001,
+      nominee: 'Aarav Sharma',
+      lastPremiumPaymentDate: '2025-06-15'
     },
     {
       policyId: 'POL-789',
@@ -47,7 +52,9 @@ export class PolicyService {
       policyEndDate: '2026-12-01',
       premiumAmount: 12000,
       policyStatus: 'DUE',
-      customerId: 2001
+      customerId: 2001,
+      nominee: 'Amit Kumar',
+      lastPremiumPaymentDate: '2025-12-01'
     }
   ];
 
@@ -65,23 +72,34 @@ export class PolicyService {
 
   getAgentCustomers(): Observable<AgentCustomerResponse[]> {
     if (USE_MOCK) {
+      const userPolicies = this.mockPolicies.filter((p: any) => p.customerId === 2001);
+      const active = userPolicies.filter((p) => p.policyStatus === 'ACTIVE' || p.policyStatus === 'DUE').length;
+      const lapsed = userPolicies.filter((p) => p.policyStatus === 'LAPSED').length;
+      const premium = userPolicies.reduce((sum, p) => sum + p.premiumAmount, 0);
+
       return of([
         {
           customerId: 2001,
           name: 'Rahul Customer',
-          email: 'rahul@gmail.com',
-          contact: '9876543211'
+          email: 'customer@demo.com',
+          contact: '9876543211',
+          totalPolicies: userPolicies.length,
+          activePolicies: active,
+          lapsedPolicies: lapsed,
+          totalPremium: premium
         }
       ]);
     }
     return this.http.get<AgentCustomerResponse[]>(`${this.apiUrl}/agent/customers`);
   }
 
-  getAgentPolicies(): Observable<AgentPolicyResponse[]> {
+
+
+  getAgentCustomerPolicies(customerId: string | number): Observable<AgentPolicyResponse[]> {
     if (USE_MOCK) {
-      return of(this.mockPolicies);
+      return of(this.mockPolicies.filter(p => String(p.customerId) === String(customerId)));
     }
-    return this.http.get<AgentPolicyResponse[]>(`${this.apiUrl}/agent/policies`);
+    return this.http.get<AgentPolicyResponse[]>(`${this.apiUrl}/agent/policies/${customerId}`);
   }
 
   getCustomerPolicies(): Observable<CustomerPolicyResponse[]> {
@@ -89,9 +107,13 @@ export class PolicyService {
       return of(this.mockPolicies.map(p => ({
         policyId: p.policyId,
         policyType: p.policyType,
+        policyStartDate: p.policyStartDate,
+        policyEndDate: p.policyEndDate,
         premiumAmount: p.premiumAmount,
         policyStatus: p.policyStatus,
-        customerId: p.customerId
+        customerId: p.customerId,
+        nominee: p.nominee,
+        lastPremiumPaymentDate: p.lastPremiumPaymentDate || p.lastPremiumDate
       })));
     }
     return this.http.get<CustomerPolicyResponse[]>(`${this.apiUrl}/customer/policies`);
@@ -111,7 +133,8 @@ export class PolicyService {
         premiumAmount: request.premiumAmount,
         policyStatus: 'ACTIVE',
         customerId: request.customerId || 2001,
-        nominee: request.nominee
+        nominee: request.nominee,
+        lastPremiumPaymentDate: start
       });
       return of({ policyId: newId });
     }
@@ -145,6 +168,7 @@ export class PolicyService {
         policy.policyStatus = 'ACTIVE';
         const curEnd = new Date(policy.policyEndDate);
         policy.policyEndDate = new Date(curEnd.setFullYear(curEnd.getFullYear() + 1)).toISOString().substring(0, 10);
+        policy.lastPremiumPaymentDate = new Date().toISOString().substring(0, 10);
       }
       return of({
         policyId: request.policyId,
@@ -157,18 +181,6 @@ export class PolicyService {
       });
     }
     return this.http.post<RenewPaymentResponse>(`${this.apiUrl}/policies/renew`, request);
-  }
-
-  getAgentDetails(agentId: number | string): Observable<AgentProfile> {
-    if (USE_MOCK) {
-      return of({
-        name: 'Aarav Sharma',
-        email: 'agent@demo.com',
-        contact: '9876543210',
-        agentId: 1001
-      });
-    }
-    return this.http.get<AgentProfile>(`${this.apiUrl}/agent/${agentId}`);
   }
 
   getCustomerAgent(): Observable<AgentProfile> {

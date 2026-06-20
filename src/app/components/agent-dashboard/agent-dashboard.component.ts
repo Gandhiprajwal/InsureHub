@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, OnInit } from '@angular/core';
+import { Component, computed, signal, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
@@ -20,16 +20,19 @@ import {
   styleUrls: ['./agent-dashboard.component.css']
 })
 export class AgentDashboardComponent implements OnInit {
-  private auth = inject(AuthService);
-  private policyService = inject(PolicyService);
-  private router = inject(Router);
+  agent: any;
 
-  agent = this.auth.current;
+  constructor(
+    private auth: AuthService,
+    private policyService: PolicyService,
+    private router: Router
+  ) {
+    this.agent = this.auth.current;
+  }
 
   // Signal stores for backend data
   dashboardStats = signal<AgentDashboardStats | null>(null);
   customersList = signal<AgentCustomerResponse[]>([]);
-  policiesList = signal<AgentPolicyResponse[]>([]);
 
   ngOnInit() {
     this.loadAgentData();
@@ -47,12 +50,6 @@ export class AgentDashboardComponent implements OnInit {
       next: (customers) => this.customersList.set(customers),
       error: () => {}
     });
-
-    // 3. Fetch policies to build detailed row info
-    this.policyService.getAgentPolicies().subscribe({
-      next: (policies) => this.policiesList.set(policies),
-      error: () => {}
-    });
   }
 
   // Compatible list for HTML bindings
@@ -68,15 +65,9 @@ export class AgentDashboardComponent implements OnInit {
 
   customerRows = computed(() => {
     const customers = this.customersList();
-    const policies = this.policiesList();
 
-    return customers.map((c) => {
-      // Find policies associated with this customerId (handle string/number comparison safely)
-      const userPolicies = policies.filter((p: any) => String(p.customerId) === String(c.customerId));
-      const active = userPolicies.filter((p) => p.policyStatus === 'ACTIVE' || p.policyStatus === 'DUE').length;
-      const lapsed = userPolicies.filter((p) => p.policyStatus === 'LAPSED').length;
-      const premium = userPolicies.reduce((sum, p) => sum + p.premiumAmount, 0);
-
+    return customers.map((c: any) => {
+      // Access pre-calculated stats returned inside the customer model from the backend
       return {
         user: {
           id: c.customerId.toString(),
@@ -84,21 +75,25 @@ export class AgentDashboardComponent implements OnInit {
           email: c.email,
           phone: c.contact
         },
-        total: userPolicies.length,
-        active,
-        lapsed,
-        premium
+        total: c.totalPolicies ?? c.total ?? 0,
+        active: c.activePolicies ?? c.active ?? 0,
+        lapsed: c.lapsedPolicies ?? c.lapsed ?? 0,
+        premium: c.totalPremium ?? c.premium ?? 0
       };
     });
   });
 
   stats = computed(() => {
     const statsData = this.dashboardStats();
-    const policies = this.policiesList();
+    const customers = this.customersList();
 
-    const active = statsData?.activePolicies ?? policies.filter((p) => p.policyStatus === 'ACTIVE' || p.policyStatus === 'DUE').length;
-    const lapsed = policies.filter((p) => p.policyStatus === 'LAPSED').length;
-    const profit = statsData?.totalProfit ?? policies.filter((p) => p.policyStatus !== 'LAPSED').reduce((sum, p) => sum + p.premiumAmount * 0.1, 0);
+    const fallbackActive = customers.reduce((sum: number, c: AgentCustomerResponse) => sum + (c.activePolicies || 0), 0);
+    const fallbackLapsed = customers.reduce((sum: number, c: AgentCustomerResponse) => sum + (c.lapsedPolicies || 0), 0);
+    const fallbackProfit = customers.reduce((sum: number, c: AgentCustomerResponse) => sum + (c.totalPremium || 0) * 0.1, 0);
+
+    const active = statsData?.activePolicies ?? fallbackActive;
+    const lapsed = fallbackLapsed;
+    const profit = statsData?.totalProfit ?? fallbackProfit;
 
     return {
       active,

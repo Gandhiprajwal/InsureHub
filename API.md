@@ -184,13 +184,17 @@ To clarify the interaction between the Angular frontend and the Spring Boot back
       "customerId": 2001,
       "name": "Rahul Customer",
       "email": "customer@demo.com",
-      "contact": "9876543211"
+      "contact": "9876543211",
+      "totalPolicies": 3,
+      "activePolicies": 2,
+      "lapsedPolicies": 1,
+      "totalPremium": 25500
     }
   ]
   ```
 
-### 3. Get Agent Policies List
-* **Endpoint**: `GET /api/agent/policies`
+### 3. Get Policies of a Specific Customer (Agent View)
+* **Endpoint**: `GET /api/agent/policies/{customerId}`
 * **Response (200 OK)**:
   ```json
   [
@@ -201,10 +205,13 @@ To clarify the interaction between the Angular frontend and the Spring Boot back
       "policyEndDate": "2031-01-01",
       "premiumAmount": 5000,
       "policyStatus": "ACTIVE",
-      "customerId": 2001
+      "customerId": 2001,
+      "nominee": "Jane Doe",
+      "lastPremiumPaymentDate": "2026-01-01"
     }
   ]
   ```
+
 
 ### 4. Get Customer Policies List
 * **Endpoint**: `GET /api/customer/policies`
@@ -214,9 +221,13 @@ To clarify the interaction between the Angular frontend and the Spring Boot back
     {
       "policyId": "POL-123",
       "policyType": "LIFEINSURANCE",
+      "policyStartDate": "2026-01-01",
+      "policyEndDate": "2031-01-01",
       "premiumAmount": 5000,
       "policyStatus": "ACTIVE",
-      "customerId": 2001
+      "customerId": 2001,
+      "nominee": "Jane Doe",
+      "lastPremiumPaymentDate": "2026-01-01"
     }
   ]
   ```
@@ -283,18 +294,6 @@ To clarify the interaction between the Angular frontend and the Spring Boot back
 
 ### 8. Get Customer Assigned Agent Details
 * **Endpoint**: `GET /api/customer/agent`
-* **Response (200 OK)**:
-  ```json
-  {
-    "agentId": 1001,
-    "name": "Aarav Sharma",
-    "email": "agent@demo.com",
-    "contact": "9876543210"
-  }
-  ```
-
-### 9. Get Agent Details by ID
-* **Endpoint**: `GET /api/agent/{agentId}`
 * **Response (200 OK)**:
   ```json
   {
