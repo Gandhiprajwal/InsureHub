@@ -16,7 +16,7 @@ export class NavbarComponent {
   private router = inject(Router);
 
   user = this.auth.current;
-  home = () => (this.auth.current()?.role === 'agent' ? '/agent' : '/customer');
+  home = () => (this.auth.current() ? (this.auth.current()?.role?.toUpperCase() === 'AGENT' ? '/agent' : '/customer') : '/');
 
   goToProfile() {
     this.router.navigate(['/profile']);

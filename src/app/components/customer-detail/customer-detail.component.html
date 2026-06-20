@@ -4,7 +4,7 @@
     <i class="bi bi-arrow-left"></i> Back to dashboard
   </button>
 
-  @if (customer(); as c) {
+  <div *ngIf="customer() as c">
     <div class="ih-card mb-4">
       <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
         <div class="d-flex align-items-center gap-3 flex-wrap">
@@ -27,7 +27,7 @@
 
     <h5 style="font-weight:700;margin-bottom:.75rem">Policies</h5>
     <app-policy-list [policies]="policies()" [readonly]="true" />
-  } @else {
-    <div class="empty-state">Customer not found.</div>
-  }
+  </div>
+  
+  <div *ngIf="!customer()" class="empty-state">Customer not found.</div>
 </div>

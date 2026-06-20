@@ -1,27 +1,134 @@
-export type Role = 'agent' | 'customer';
+export type Role = 'AGENT' | 'CUSTOMER';
 
-export type PolicyType = 'Life' | 'Health' | 'Home' | 'Vehicle';
+export type PolicyType = 'LIFEINSURANCE' | 'HEALTHINSURANCE' | 'HOMEINSURANCE' | 'VEHICLEINSURANCE';
+
+export type PolicyStatus = 'ACTIVE' | 'LAPSED' | 'DUE';
 
 export interface User {
   id: string;
   name: string;
   email: string;
-  password: string; // demo only — never do this in real apps
   role: Role;
-  agentId?: string; // when role = customer, links to the agent
+  agentId?: string;
   phone?: string;
 }
 
-export interface Policy {
-  id: string;
-  customerId: string;
-  type: PolicyType;
-  policyNumber: string;
-  premium: number; // amount paid on renewal
-  coverage: number;
-  startDate: string; // ISO
-  renewalDate: string; // ISO — exactly 1 year from start
-  dueDate: string; // ISO — renewalDate + 30 days grace
+export interface DecodedToken {
+  sub: string;
+  role: Role;
+  exp?: number;
+  [key: string]: any;
 }
 
-export type PolicyStatus = 'Active' | 'Lapsed' | 'Due';
+export interface LoginResponse {
+  token: string;
+  role: Role;
+  message: string;
+}
+
+export interface SendOtpRequest {
+  email: string;
+}
+
+export interface VerifyOtpRequest {
+  email: string;
+  otp: string;
+}
+
+export interface RegisterAgentRequest {
+  name: string;
+  email: string;
+  contact: string;
+  password?: string;
+  role: 'AGENT';
+}
+
+export interface RegisterCustomerRequest {
+  name: string;
+  email: string;
+  contact: string;
+  password?: string;
+  role: 'CUSTOMER';
+  agentId: number;
+}
+
+export interface AgentDashboardStats {
+  activePolicies: number;
+  totalCustomers: number;
+  totalProfit: number;
+}
+
+export interface AgentProfile {
+  name: string;
+  email: string;
+  contact: string;
+}
+
+export interface CustomerDetails {
+  customerId: number;
+  name: string;
+  email: string;
+  contact: string;
+}
+
+export interface AgentCustomerResponse {
+  customerId: number;
+  name: string;
+  email: string;
+  contact: string;
+}
+
+export interface AgentPolicyResponse {
+  policyId: string;
+  policyType: PolicyType;
+  policyStartDate: string;
+  policyEndDate: string;
+  premiumAmount: number;
+  policyStatus: PolicyStatus;
+}
+
+export interface CustomerPolicyResponse {
+  policyId: string;
+  policyType: PolicyType;
+  premiumAmount: number;
+  policyStatus: PolicyStatus;
+  customerId: number;
+}
+
+export interface PurchasePolicyRequest {
+  customerId: number;
+  policyType: PolicyType;
+  premiumAmount: number;
+  policyStartDate: string;
+  termInYears: number;
+  nominee: string;
+}
+
+export interface RenewPreviewResponse {
+  policyId: string;
+  policyType: PolicyType;
+  originalPremiumAmount: number;
+  penaltyAmount: number;
+  renewalPremiumAmount: number;
+  policyStatus: PolicyStatus;
+}
+
+export interface RenewPaymentRequest {
+  policyId: string;
+  cardHolderName: string;
+  cardNumber: string;
+  expiryMonth: string;
+  expiryYear: string;
+  cvv: string;
+}
+
+export interface RenewPaymentResponse {
+  policyId: string;
+  policyType: PolicyType;
+  originalPremiumAmount: number;
+  penaltyAmount: number;
+  renewalPremiumAmount: number;
+  lastPremiumPaymentDate: string;
+  policyStatus: PolicyStatus;
+}
+

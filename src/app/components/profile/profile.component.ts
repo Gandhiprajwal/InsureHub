@@ -1,13 +1,14 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { ProfileService } from '../../services/profile.service';
-import { DataService } from '../../services/data.service';
+import { PolicyService } from '../../services/policy.service';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { InitialsPipe } from '../../pipes/initials.pipe';
 import { PhonePipe } from '../../pipes/phone.pipe';
+import { AgentProfile, CustomerDetails } from '../../models/models';
 
 @Component({
   selector: 'app-profile',
@@ -16,10 +17,10 @@ import { PhonePipe } from '../../pipes/phone.pipe';
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css']
 })
-export class ProfileComponent {
+export class ProfileComponent implements OnInit {
   private auth = inject(AuthService);
   private profileService = inject(ProfileService);
-  private data = inject(DataService);
+  private policyService = inject(PolicyService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
 
@@ -30,58 +31,119 @@ export class ProfileComponent {
   successMsg = signal('');
   errorMsg = signal('');
 
+  // Loaded dynamically from APIs
+  profileData = signal<any>(null);
+  assignedAgent = signal<AgentProfile | null>(null);
+
+  // Stats signals
+  agentCustomersCount = signal(0);
+  agentActivePolicies = signal(0);
+  customerPoliciesCount = signal(0);
+
   constructor() {
+    this.profileForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(2)]],
+      email: ['', [Validators.required, Validators.email]],
+      phone: ['', [Validators.required, Validators.pattern(/^\+?[0-9\s-]{10,15}$/)]]
+    });
+  }
+
+  ngOnInit() {
     const u = this.user();
     if (!u) {
       this.router.navigate(['/login']);
       return;
     }
 
-    this.profileForm = this.fb.group({
-      name: [u.name, [Validators.required, Validators.minLength(2)]],
-      email: [u.email, [Validators.required, Validators.email]],
-      phone: [u.phone || '', [Validators.pattern(/^\+?[0-9\s-]{10,15}$/)]],
-      password: [u.password, [Validators.required, Validators.minLength(4)]]
+    this.loadProfile();
+  }
+
+  loadProfile() {
+    const role = this.auth.role();
+
+    this.profileService.getProfile().subscribe({
+      next: (res) => {
+        this.profileData.set(res);
+        this.profileForm.patchValue({
+          name: res.name || '',
+          email: res.email || '',
+          phone: res.contact || ''
+        });
+
+        if (role === 'CUSTOMER') {
+          this.loadCustomerAgentAndStats(res);
+        } else if (role === 'AGENT') {
+          this.loadAgentStats();
+        }
+      },
+      error: (err) => {
+        this.errorMsg.set('Failed to load profile details.');
+      }
+    });
+  }
+
+  loadCustomerAgentAndStats(customer: CustomerDetails) {
+    // 1. Load customer's policies count
+    this.policyService.getCustomerPolicies().subscribe({
+      next: (policies) => {
+        this.customerPoliciesCount.set(policies.length);
+      }
+    });
+
+    // 2. Load assigned agent details using getCustomerAgent() or agentId from response if available
+    this.policyService.getCustomerAgent().subscribe({
+      next: (agent) => {
+        this.assignedAgent.set(agent);
+      },
+      error: () => {
+        // Fallback: If no direct endpoint, and customer object has agentId
+        const agentId = (customer as any).agentId;
+        if (agentId) {
+          this.policyService.getAgentDetails(agentId).subscribe({
+            next: (agent) => this.assignedAgent.set(agent),
+            error: () => {}
+          });
+        }
+      }
+    });
+  }
+
+  loadAgentStats() {
+    // Load agent's customers count
+    this.policyService.getAgentCustomers().subscribe({
+      next: (customers) => {
+        this.agentCustomersCount.set(customers.length);
+      }
+    });
+
+    // Load agent's active policies count
+    this.policyService.getAgentPolicies().subscribe({
+      next: (policies) => {
+        const active = policies.filter((p) => p.policyStatus === 'ACTIVE' || p.policyStatus === 'DUE').length;
+        this.agentActivePolicies.set(active);
+      }
     });
   }
 
   get f() { return this.profileForm.controls; }
 
-  // Computed agent portfolio stats
+  // Computed properties matching templates
   agentStats = computed(() => {
-    const a = this.user();
-    if (!a || a.role !== 'agent') return { customersCount: 0, activePolicies: 0 };
-    this.data.policiesSig();
-    const customers = this.data.getCustomersForAgent(a.agentId!);
-    const policies = this.data.getPoliciesForAgent(a.agentId!);
-    const activePolicies = policies.filter((p) => this.data.statusOf(p) !== 'Lapsed').length;
     return {
-      customersCount: customers.length,
-      activePolicies
+      customersCount: this.agentCustomersCount(),
+      activePolicies: this.agentActivePolicies()
     };
   });
 
-  // Computed customer stats
   customerStats = computed(() => {
-    const c = this.user();
-    if (!c || c.role !== 'customer') return { policiesCount: 0 };
-    this.data.policiesSig();
-    const policies = this.data.getPoliciesForCustomer(c.id);
     return {
-      policiesCount: policies.length
+      policiesCount: this.customerPoliciesCount()
     };
-  });
-
-  // Assigned Agent info for customers
-  assignedAgent = computed(() => {
-    const c = this.user();
-    if (!c || c.role !== 'customer' || !c.agentId) return null;
-    return this.data.getAgentByAgentId(c.agentId);
   });
 
   goBack() {
-    const role = this.user()?.role;
-    if (role === 'agent') {
+    const role = this.auth.role();
+    if (role === 'AGENT') {
       this.router.navigate(['/agent']);
     } else {
       this.router.navigate(['/customer']);
@@ -99,18 +161,25 @@ export class ProfileComponent {
     this.successMsg.set('');
 
     const formValues = this.profileForm.value;
+    const updateRequest = {
+      name: formValues.name,
+      email: formValues.email,
+      contact: formValues.phone
+    };
 
-    this.profileService.updateProfile(formValues).then((res) => {
-      this.saving.set(false);
-      if (res.ok) {
+    this.profileService.updateProfile(updateRequest).subscribe({
+      next: () => {
+        this.saving.set(true); // wait, keep saving true until reload
         this.successMsg.set('Profile settings updated successfully.');
+        // Reload profile data to make sure it syncs
+        this.loadProfile();
+        this.saving.set(false);
         setTimeout(() => this.successMsg.set(''), 3500);
-      } else {
-        this.errorMsg.set(res.error || 'Failed to update profile.');
+      },
+      error: (err) => {
+        this.saving.set(false);
+        this.errorMsg.set(err.error?.message || err.error || 'Failed to update profile.');
       }
-    }).catch(err => {
-      this.saving.set(false);
-      this.errorMsg.set('An error occurred while saving.');
     });
   }
 }

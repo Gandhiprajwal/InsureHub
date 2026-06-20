@@ -4,12 +4,12 @@
     InsureHub
   </a>
   <div class="d-flex align-items-center gap-3">
-    @if (user(); as u) {
+    <ng-container *ngIf="user() as u">
       <div class="d-flex align-items-center gap-2" (click)="goToProfile()" style="cursor: pointer;" title="View Profile">
         <div class="text-end d-none d-sm-block">
           <div style="font-weight:600;font-size:.9rem; line-height: 1.2;">{{ u.name }}</div>
           <div class="text-muted-2" style="font-size:.75rem">
-            {{ u.role === 'agent' ? 'Agent · ' + u.agentId : 'Customer · Agent ' + u.agentId }}
+            {{ u.role.toUpperCase() === 'AGENT' ? 'Agent · ID ' + (u.agentId || '—') : 'Customer · ID ' + (u.agentId || '—') }}
           </div>
         </div>
         <div class="ih-avatar">{{ u.name | appInitials }}</div>
@@ -23,6 +23,6 @@
         <i class="bi bi-box-arrow-right"></i>
         <span class="d-none d-sm-inline">Logout</span>
       </button>
-    }
+    </ng-container>
   </div>
 </nav>

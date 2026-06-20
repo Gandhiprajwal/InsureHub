@@ -1,7 +1,7 @@
 <app-navbar />
 <div class="ih-shell">
-  <h2 class="ih-page-title">Hi {{ user()?.name?.split(' ')?.[0] }} 👋</h2>
-  <p class="ih-subtitle">Your insurance overview</p>
+  <h2 class="ih-page-title">Hi {{ customerDetails()?.name?.split(' ')?.[0] || user()?.name?.split(' ')?.[0] }} 👋</h2>
+  <p class="ih-subtitle">Your insurance overview · Customer ID: <strong>{{ customerDetails()?.customerId || '—' }}</strong></p>
 
   <div class="row g-3 my-3">
     <div class="col-6 col-lg-3">
@@ -34,19 +34,22 @@
     </div>
   </div>
 
-  @if (agent(); as a) {
-    <div class="ih-card mb-4 d-flex align-items-center gap-3 flex-wrap">
-      <div class="ih-avatar">{{ a.name | appInitials }}</div>
-      <div class="flex-grow-1">
-        <div class="text-muted-2" style="font-size:.78rem">YOUR AGENT</div>
-        <div style="font-weight:600">{{ a.name }}</div>
-        <div class="text-muted-2" style="font-size:.85rem">
-          {{ a.email }} · {{ a.phone | appPhone }} · Agent ID {{ a.agentId }}
-        </div>
+  <div *ngIf="agent() as a" class="ih-card mb-4 d-flex align-items-center gap-3 flex-wrap">
+    <div class="ih-avatar">{{ a.name | appInitials }}</div>
+    <div class="flex-grow-1">
+      <div class="text-muted-2" style="font-size:.78rem">YOUR ASSIGNED AGENT</div>
+      <div style="font-weight:600">{{ a.name }}</div>
+      <div class="text-muted-2" style="font-size:.85rem">
+        {{ a.email }} · {{ a.phone | appPhone }} · Agent ID {{ a.agentId }}
       </div>
     </div>
-  }
+  </div>
 
-  <h5 style="font-weight:700;margin-bottom:.75rem">My Policies</h5>
-  <app-policy-list [policies]="policies()" [readonly]="false" />
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0" style="font-weight:700">My Policies</h5>
+    <button class="btn btn-primary btn-sm px-3 d-flex align-items-center gap-1" (click)="openPurchaseDialog()" [disabled]="!customerDetails()">
+      <i class="bi bi-plus-circle-fill"></i> Purchase Policy
+    </button>
+  </div>
+  <app-policy-list [policies]="policies()" [readonly]="false" (renewed)="refreshData()" />
 </div>

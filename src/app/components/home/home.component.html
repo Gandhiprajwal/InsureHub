@@ -1,0 +1,448 @@
+<!-- Header / Navigation Bar (Public) -->
+<header class="landing-header">
+  <div class="container-xl d-flex align-items-center justify-content-between h-100">
+    <a class="brand" href="/">
+      <span class="dot"><i class="bi bi-shield-fill-check"></i></span>
+      InsureHub
+    </a>
+
+    <nav class="nav-links d-none d-md-flex align-items-center gap-4">
+      <a href="#features">Features</a>
+      <a href="#insurances">Insurances</a>
+      <a href="#calculator">Premium Calculator</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+
+    <div class="auth-actions d-flex align-items-center gap-3">
+      <ng-container *ngIf="isLoggedIn(); else publicNav">
+        <button class="btn btn-primary d-flex align-items-center gap-2 px-3 py-2" (click)="goToDashboard()">
+          <i class="bi bi-speedometer2"></i>
+          <span>Dashboard</span>
+        </button>
+      </ng-container>
+      <ng-template #publicNav>
+        <a routerLink="/login" class="login-link d-none d-sm-inline-block">Sign In</a>
+        <a routerLink="/signup" class="btn btn-primary px-3 py-2">Get Started</a>
+      </ng-template>
+    </div>
+  </div>
+</header>
+
+<main class="landing-main">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container-xl">
+      <div class="row align-items-center min-vh-75 py-5">
+        <div class="col-lg-6 hero-content text-start">
+          <div class="badge-new mb-3">
+            <span class="badge-tag">NEW</span>
+            <span class="badge-text">Instant online renewal within 30-day grace period!</span>
+          </div>
+          <h1 class="hero-title">
+            Protect What Matters Most, <span class="text-gradient">Effortlessly</span>.
+          </h1>
+          <p class="hero-subtitle mb-4">
+            Manage your Life, Home, Health, and Vehicle policies in one secure, unified digital hub. Built for modern policyholders and certified agents.
+          </p>
+          <div class="hero-ctas d-flex flex-wrap gap-3">
+            <a href="#insurances" class="btn btn-primary btn-lg px-4 py-3">Explore Plans</a>
+            <a href="#calculator" class="btn btn-outline-light btn-lg px-4 py-3">Estimate Premium</a>
+          </div>
+        </div>
+
+        <div class="col-lg-6 hero-visual mt-5 mt-lg-0 text-center">
+          <div class="glass-card-wrapper position-relative">
+            <!-- Glassmorphism Cards representing visual metrics -->
+            <div class="floating-card c1 p-3">
+              <div class="d-flex align-items-center gap-3">
+                <div class="icon-box type-Life"><i class="bi bi-heart-pulse-fill"></i></div>
+                <div class="text-start">
+                  <div class="label text-muted-2">Life Protection</div>
+                  <div class="val">₹10L+ Coverage</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="floating-card c2 p-3">
+              <div class="d-flex align-items-center gap-3">
+                <div class="icon-box type-Health"><i class="bi bi-activity"></i></div>
+                <div class="text-start">
+                  <div class="label text-muted-2">Health Network</div>
+                  <div class="val">500+ Hospitals</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="floating-card c3 p-3">
+              <div class="d-flex align-items-center gap-3">
+                <div class="icon-box type-Vehicle"><i class="bi bi-car-front-fill"></i></div>
+                <div class="text-start">
+                  <div class="label text-muted-2">Vehicle Roadside</div>
+                  <div class="val">24/7 Support</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="hero-shield">
+              <i class="bi bi-shield-lock-fill text-gradient"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats ribbon -->
+  <section class="stats-ribbon py-4" id="features">
+    <div class="container-xl">
+      <div class="row text-center g-4">
+        <div class="col-6 col-md-3">
+          <h3 class="stat-num">99.9%</h3>
+          <p class="stat-label mb-0">Claim Settlement</p>
+        </div>
+        <div class="col-6 col-md-3">
+          <h3 class="stat-num">10M+</h3>
+          <p class="stat-label mb-0">Active Policies</p>
+        </div>
+        <div class="col-6 col-md-3">
+          <h3 class="stat-num">&lt; 15m</h3>
+          <p class="stat-label mb-0">Response Time</p>
+        </div>
+        <div class="col-6 col-md-3">
+          <h3 class="stat-num">24/7</h3>
+          <p class="stat-label mb-0">Agent Availability</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Insurance Offerings -->
+  <section class="insurances-section py-5" id="insurances">
+    <div class="container-xl">
+      <div class="section-header text-center mb-5">
+        <span class="section-tag text-uppercase">Our Offerings</span>
+        <h2 class="section-title">Comprehensive Coverage for Every Need</h2>
+        <p class="section-subtitle mx-auto">
+          Explore our tailored solutions to protect your future, home, health, and vehicles.
+        </p>
+      </div>
+
+      <div class="row g-4">
+        <!-- Life Insurance -->
+        <div class="col-md-6 col-lg-3">
+          <div class="insurance-card">
+            <div class="card-gradient life"></div>
+            <div class="card-content p-4">
+              <div class="card-icon type-Life mb-3">
+                <i class="bi bi-heart-pulse-fill"></i>
+              </div>
+              <h3 class="card-title">Life Insurance</h3>
+              <p class="card-desc">
+                Secure your family's financial future. Flexible term and whole life plans tailored to your long-term responsibilities.
+              </p>
+              <ul class="card-features list-unstyled">
+                <li><i class="bi bi-check-circle-fill text-success me-2"></i>Tax Benefits</li>
+                <li><i class="bi bi-check-circle-fill text-success me-2"></i>Flexible Premium terms</li>
+                <li><i class="bi bi-check-circle-fill text-success me-2"></i>Critical Illness riders</li>
+              </ul>
+              <div class="mt-auto">
+                <a href="#calculator" (click)="onTypeChange('Life')" class="btn btn-sm btn-outline-primary w-100 mt-3">Calculate Premium</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Home Insurance -->
+        <div class="col-md-6 col-lg-3">
+          <div class="insurance-card">
+            <div class="card-gradient home"></div>
+            <div class="card-content p-4">
+              <div class="card-icon type-Home mb-3">
+                <i class="bi bi-house-door-fill"></i>
+              </div>
+              <h3 class="card-title">Home Insurance</h3>
+              <p class="card-desc">
+                Protect your sanctuary and belongings against theft, fire, and natural disasters. Quick damage assessment and payout.
+              </p>
+              <ul class="card-features list-unstyled">
+                <li><i class="bi bi-check-circle-fill text-success me-2"></i>Structure + Content</li>
+                <li><i class="bi bi-check-circle-fill text-success me-2"></i>Theft & Fire Protection</li>
+                <li><i class="bi bi-check-circle-fill text-success me-2"></i>Alternative Rent allowance</li>
+              </ul>
+              <div class="mt-auto">
+                <a href="#calculator" (click)="onTypeChange('Home')" class="btn btn-sm btn-outline-primary w-100 mt-3">Calculate Premium</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Health Insurance -->
+        <div class="col-md-6 col-lg-3">
+          <div class="insurance-card">
+            <div class="card-gradient health"></div>
+            <div class="card-content p-4">
+              <div class="card-icon type-Health mb-3">
+                <i class="bi bi-activity"></i>
+              </div>
+              <h3 class="card-title">Health Insurance</h3>
+              <p class="card-desc">
+                Prioritize wellness. Comprehensive health cover including cashless hospitalizations, pre/post care, and annual health check-ups.
+              </p>
+              <ul class="card-features list-unstyled">
+                <li><i class="bi bi-check-circle-fill text-success me-2"></i>Cashless treatment</li>
+                <li><i class="bi bi-check-circle-fill text-success me-2"></i>No Co-Pay options</li>
+                <li><i class="bi bi-check-circle-fill text-success me-2"></i>Daycare cover</li>
+              </ul>
+              <div class="mt-auto">
+                <a href="#calculator" (click)="onTypeChange('Health')" class="btn btn-sm btn-outline-primary w-100 mt-3">Calculate Premium</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vehicle Insurance -->
+        <div class="col-md-6 col-lg-3">
+          <div class="insurance-card">
+            <div class="card-gradient vehicle"></div>
+            <div class="card-content p-4">
+              <div class="card-icon type-Vehicle mb-3">
+                <i class="bi bi-car-front-fill"></i>
+              </div>
+              <h3 class="card-title">Vehicle Insurance</h3>
+              <p class="card-desc">
+                Drive with peace of mind. Liability cover, accidental collision support, and standard zero-depreciation benefits.
+              </p>
+              <ul class="card-features list-unstyled">
+                <li><i class="bi bi-check-circle-fill text-success me-2"></i>Instant roadside assistance</li>
+                <li><i class="bi bi-check-circle-fill text-success me-2"></i>Zero Depreciation</li>
+                <li><i class="bi bi-check-circle-fill text-success me-2"></i>Key replacement cover</li>
+              </ul>
+              <div class="mt-auto">
+                <a href="#calculator" (click)="onTypeChange('Vehicle')" class="btn btn-sm btn-outline-primary w-100 mt-3">Calculate Premium</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Premium Calculator -->
+  <section class="calculator-section py-5 bg-gradient-calculator" id="calculator">
+    <div class="container-xl">
+      <div class="section-header text-center mb-5">
+        <span class="section-tag text-uppercase">Smart Tools</span>
+        <h2 class="section-title">Interactive Premium Estimator</h2>
+        <p class="section-subtitle mx-auto">
+          Get a quick quote on your estimated monthly premium. Adjust coverage limits and add-ons in real-time.
+        </p>
+      </div>
+
+      <div class="calculator-box mx-auto p-4 p-md-5">
+        <div class="row g-4 align-items-center">
+          <div class="col-lg-7">
+            <!-- Navigation Tabs -->
+            <label class="form-label text-white-50 mb-2">Select Insurance Type</label>
+            <div class="calc-type-tabs d-flex flex-wrap gap-2 mb-4">
+              <button class="tab-btn" [class.active]="calcType() === 'Life'" (click)="onTypeChange('Life')">
+                <i class="bi bi-heart-pulse-fill me-1"></i> Life
+              </button>
+              <button class="tab-btn" [class.active]="calcType() === 'Home'" (click)="onTypeChange('Home')">
+                <i class="bi bi-house-door-fill me-1"></i> Home
+              </button>
+              <button class="tab-btn" [class.active]="calcType() === 'Health'" (click)="onTypeChange('Health')">
+                <i class="bi bi-activity me-1"></i> Health
+              </button>
+              <button class="tab-btn" [class.active]="calcType() === 'Vehicle'" (click)="onTypeChange('Vehicle')">
+                <i class="bi bi-car-front-fill me-1"></i> Vehicle
+              </button>
+            </div>
+
+            <!-- Coverage Slider -->
+            <div class="mb-4">
+              <div class="d-flex justify-content-between mb-2">
+                <label class="form-label text-white">Coverage Amount</label>
+                <span class="coverage-value text-gradient fw-bold">₹{{ calcCoverage() | number }}</span>
+              </div>
+              <input type="range" 
+                     class="w-100 custom-range" 
+                     [min]="coverageMin()" 
+                     [max]="coverageMax()" 
+                     [step]="coverageStep()" 
+                     [ngModel]="calcCoverage()"
+                     (ngModelChange)="calcCoverage.set($event)" />
+              <div class="d-flex justify-content-between text-white-50 fs-7 mt-1">
+                <span>₹{{ coverageMin() | number }}</span>
+                <span>Min / Max Limits</span>
+                <span>₹{{ coverageMax() | number }}</span>
+              </div>
+            </div>
+
+            <!-- Dynamic Options -->
+            <div class="options-container py-3">
+              <div *ngIf="calcType() === 'Life' || calcType() === 'Health'" class="mb-3">
+                <div class="d-flex justify-content-between mb-2">
+                  <label class="form-label text-white">Age of Policyholder</label>
+                  <span class="text-white fw-semibold">{{ calcAge() }} years</span>
+                </div>
+                <input type="range" 
+                       class="w-100 custom-range age" 
+                       min="18" 
+                       max="65" 
+                       step="1" 
+                       [ngModel]="calcAge()"
+                       (ngModelChange)="calcAge.set($event)" />
+              </div>
+
+              <div *ngIf="calcType() === 'Health'" class="form-check form-switch mt-3">
+                <input class="form-check-input" 
+                       type="checkbox" 
+                       id="hasRiderCheck" 
+                       [ngModel]="calcHasRider()"
+                       (ngModelChange)="calcHasRider.set($event)">
+                <label class="form-check-label text-white" for="hasRiderCheck">
+                  Include Critical Illness Rider (+20% premium)
+                </label>
+              </div>
+
+              <div *ngIf="calcType() === 'Home'" class="mb-3">
+                <label class="form-label text-white">Property Type</label>
+                <select class="form-select bg-dark text-white border-secondary"
+                        [ngModel]="calcPropertyType()"
+                        (ngModelChange)="calcPropertyType.set($event)">
+                  <option value="apartment">Apartment / Flat (Base Rate)</option>
+                  <option value="house">Independent House / Villa (+25% Premium)</option>
+                </select>
+              </div>
+
+              <div *ngIf="calcType() === 'Vehicle'" class="mb-3">
+                <label class="form-label text-white">Vehicle Class</label>
+                <select class="form-select bg-dark text-white border-secondary"
+                        [ngModel]="calcVehicleType()"
+                        (ngModelChange)="calcVehicleType.set($event)">
+                  <option value="two-wheeler">Two-Wheeler / Motorbike (Base Rate)</option>
+                  <option value="four-wheeler">Four-Wheeler / Car (+50% Premium)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-5 text-center mt-4 mt-lg-0 border-lg-start border-secondary">
+            <div class="result-box p-4 rounded-3">
+              <div class="result-label text-white-50 uppercase fs-7 mb-2">Estimated Monthly Premium</div>
+              <div class="premium-display mb-4">
+                <span class="currency text-white">₹</span>
+                <span class="value text-gradient fw-black">{{ estimatedPremium() | number }}</span>
+                <span class="period text-white-50">/ mo</span>
+              </div>
+              
+              <div class="divider bg-secondary opacity-25 mb-4"></div>
+
+              <p class="text-white-50 small mb-4">
+                *Note: This is an estimated monthly premium excluding taxes. Exact rates depend on medical records, exact vehicle IDV, and details vetted by our agent.
+              </p>
+              
+              <div *ngIf="isLoggedIn(); else noLoginAction">
+                <button class="btn btn-primary btn-lg w-100 py-3 d-flex align-items-center justify-content-center gap-2" (click)="goToDashboard()">
+                  <i class="bi bi-file-earmark-plus"></i> Configure Policy
+                </button>
+              </div>
+              <ng-template #noLoginAction>
+                <a routerLink="/signup" class="btn btn-primary btn-lg w-100 py-3 d-flex align-items-center justify-content-center gap-2">
+                  <i class="bi bi-person-plus-fill"></i> Sign Up to Secure Plan
+                </a>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="faq-section py-5" id="faq">
+    <div class="container-xl">
+      <div class="section-header text-center mb-5">
+        <span class="section-tag text-uppercase">Common Queries</span>
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <p class="section-subtitle mx-auto">
+          Need quick answers? Read our most commonly asked questions below.
+        </p>
+      </div>
+
+      <div class="faq-accordion-list mx-auto" style="max-width: 800px;">
+        <div *ngFor="let faq of faqs; let index = index" class="accordion-item-custom mb-3" [class.open]="activeFaq() === index">
+          <button class="accordion-header-custom w-100 text-start p-3 d-flex align-items-center justify-content-between" (click)="toggleFaq(index)">
+            <span class="question-text">{{ faq.q }}</span>
+            <span class="icon-toggle">
+              <i class="bi" [class.bi-plus-lg]="activeFaq() !== index" [class.bi-dash-lg]="activeFaq() === index"></i>
+            </span>
+          </button>
+          <div class="accordion-body-wrapper">
+            <div class="accordion-body-custom p-3 text-muted-2">
+              {{ faq.a }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Footer -->
+<footer class="landing-footer py-5 border-top border-secondary">
+  <div class="container-xl">
+    <div class="row g-4">
+      <div class="col-lg-4 text-start">
+        <a class="brand text-white text-decoration-none d-flex align-items-center gap-2 mb-3" href="/">
+          <span class="dot"><i class="bi bi-shield-fill-check"></i></span>
+          InsureHub
+        </a>
+        <p class="text-white-50 small pe-lg-4">
+          InsureHub simplifies insurance management for agents and clients. We provide cutting-edge web tools to keep you secure and covered under unified digital policies.
+        </p>
+        <div class="social-links d-flex gap-3 mt-3">
+          <a href="#" class="text-white-50"><i class="bi bi-facebook"></i></a>
+          <a href="#" class="text-white-50"><i class="bi bi-twitter-x"></i></a>
+          <a href="#" class="text-white-50"><i class="bi bi-linkedin"></i></a>
+          <a href="#" class="text-white-50"><i class="bi bi-github"></i></a>
+        </div>
+      </div>
+      <div class="col-sm-6 col-lg-2">
+        <h5 class="text-white mb-3">Product</h5>
+        <ul class="list-unstyled text-white-50 small">
+          <li class="mb-2"><a href="#features" class="text-decoration-none text-white-50">Features</a></li>
+          <li class="mb-2"><a href="#insurances" class="text-decoration-none text-white-50">Insurances</a></li>
+          <li class="mb-2"><a href="#calculator" class="text-decoration-none text-white-50">Calculator</a></li>
+          <li class="mb-2"><a href="#faq" class="text-decoration-none text-white-50">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="col-sm-6 col-lg-2">
+        <h5 class="text-white mb-3">Company</h5>
+        <ul class="list-unstyled text-white-50 small">
+          <li class="mb-2"><a href="#" class="text-decoration-none text-white-50">About Us</a></li>
+          <li class="mb-2"><a href="#" class="text-decoration-none text-white-50">Careers</a></li>
+          <li class="mb-2"><a href="#" class="text-decoration-none text-white-50">Privacy Policy</a></li>
+          <li class="mb-2"><a href="#" class="text-decoration-none text-white-50">Terms of Service</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-4 text-start">
+        <h5 class="text-white mb-3">Newsletter</h5>
+        <p class="text-white-50 small mb-3">Subscribe to get latest updates, tips & exclusive policy offers.</p>
+        <div class="d-flex gap-2">
+          <input type="email" class="form-control bg-dark border-secondary text-white" placeholder="Enter email address" style="border-radius:8px;">
+          <button class="btn btn-primary px-3" style="border-radius:8px;">Subscribe</button>
+        </div>
+      </div>
+    </div>
+    <div class="divider bg-secondary opacity-25 my-4"></div>
+    <div class="row align-items-center">
+      <div class="col-md-6 text-center text-md-start">
+        <span class="text-white-50 small">© 2026 InsureHub Inc. All rights reserved.</span>
+      </div>
+      <div class="col-md-6 text-center text-md-end mt-2 mt-md-0">
+        <span class="text-white-50 small">Designed with ❤️ for modern security</span>
+      </div>
+    </div>
+  </div>
+</footer>

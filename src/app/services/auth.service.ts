@@ -1,84 +1,172 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { Role, User } from '../models/models';
-import { DataService } from './data.service';
+import { HttpClient } from '@angular/common/http';
+import { Observable, tap, of } from 'rxjs';
+import {
+  Role,
+  User,
+  DecodedToken,
+  LoginResponse,
+  RegisterAgentRequest,
+  RegisterCustomerRequest
+} from '../models/models';
+import { environment } from '../../environments/environment';
 
-const SESSION_KEY = 'ih_session_user_id';
+const USE_MOCK = environment.useMock;
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly _current = signal<User | null>(null);
-  readonly current = this._current.asReadonly();
-  readonly isLoggedIn = computed(() => this._current() !== null);
+  private readonly baseUrl = `${environment.apiUrl}/auth`;
+  private readonly apiUrl = environment.apiUrl;
 
-  constructor(private data: DataService) {
-    const id = localStorage.getItem(SESSION_KEY);
-    if (id) {
-      const u = this.data.getUserById(id);
-      if (u) this._current.set(u);
+  private readonly _token = signal<string | null>(null);
+  private readonly _role = signal<Role | null>(null);
+  private readonly _currentEmail = signal<string>('');
+  private readonly _profileDetails = signal<any>(null);
+
+  readonly token = this._token.asReadonly();
+  readonly role = this._role.asReadonly();
+  readonly isLoggedIn = computed(() => this._token() !== null);
+
+  readonly current = computed<User | null>(() => {
+    const role = this._role();
+    const email = this._currentEmail();
+    const profile = this._profileDetails();
+    if (!role || !email) return null;
+    return {
+      id: email,
+      name: profile?.name || email.split('@')[0],
+      email: email,
+      role: role,
+      agentId: profile?.agentId ? String(profile.agentId) : (profile?.customerId ? String(profile.customerId) : undefined)
+    };
+  });
+
+  constructor(private http: HttpClient) {
+    const token = localStorage.getItem('jwt_token');
+    const role = localStorage.getItem('role') as Role | null;
+    if (token && role) {
+      this._token.set(token);
+      this._role.set(role);
+      const decoded = this.decodeToken(token);
+      if (decoded) {
+        this._currentEmail.set(decoded.sub || '');
+      }
+      this.loadUserProfile();
     }
   }
 
-  login(email: string, password: string, role: Role): { ok: true } | { ok: false; error: string } {
-    const user = this.data
-      .getUsers()
-      .find((u) => u.email.toLowerCase() === email.toLowerCase() && u.role === role);
-    if (!user) return { ok: false, error: 'No account found for that email and role.' };
-    if (user.password !== password) return { ok: false, error: 'Incorrect password.' };
-    this._current.set(user);
-    localStorage.setItem(SESSION_KEY, user.id);
-    return { ok: true };
+  private decodeToken(token: string): DecodedToken | null {
+    if (USE_MOCK) {
+      return { sub: this._currentEmail() || 'user@gmail.com', role: this._role() || 'CUSTOMER' };
+    }
+    try {
+      const payload = token.split('.')[1];
+      const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+      return JSON.parse(decoded);
+    } catch {
+      return null;
+    }
   }
 
-  signup(input: {
-    name: string;
-    email: string;
-    password: string;
-    role: Role;
-    agentId?: string;
-    phone?: string;
-  }): { ok: true } | { ok: false; error: string } {
-    const exists = this.data
-      .getUsers()
-      .some((u) => u.email.toLowerCase() === input.email.toLowerCase());
-    if (exists) return { ok: false, error: 'An account with that email already exists.' };
+  loadUserProfile() {
+    const role = this._role();
+    if (!role) return;
 
-    if (input.role === 'customer') {
-      if (!input.agentId) return { ok: false, error: 'Agent ID is required for customers.' };
-      const agent = this.data.getAgentByAgentId(input.agentId);
-      if (!agent) return { ok: false, error: 'No agent found with that Agent ID.' };
+    if (USE_MOCK) {
+      if (role === 'AGENT') {
+        this._profileDetails.set({
+          name: 'John Agent',
+          email: this._currentEmail() || 'john@gmail.com',
+          contact: '9876543210',
+          agentId: 1001
+        });
+      } else {
+        this._profileDetails.set({
+          customerId: 2001,
+          name: 'Rahul Customer',
+          email: this._currentEmail() || 'rahul@gmail.com',
+          contact: '9876543211',
+          agentId: 1001
+        });
+      }
+      return;
     }
 
-    const user = this.data.createUser(input);
-    this._current.set(user);
-    localStorage.setItem(SESSION_KEY, user.id);
-    return { ok: true };
+    const endpoint = role === 'AGENT' ? `${this.apiUrl}/agent/profile` : `${this.apiUrl}/customer/profile`;
+    this.http.get<any>(endpoint).subscribe({
+      next: (profile) => {
+        this._profileDetails.set(profile);
+      },
+      error: () => {}
+    });
   }
 
-  updateProfile(updates: {
-    name: string;
-    email: string;
-    phone?: string;
-    password?: string;
-  }): { ok: true } | { ok: false; error: string } {
-    const user = this._current();
-    if (!user) return { ok: false, error: 'No user is currently logged in.' };
+  sendOtp(email: string): Observable<string> {
+    if (USE_MOCK) {
+      return of('OTP sent successfully (Mock Mode)');
+    }
+    return this.http.post(`${this.baseUrl}/send-otp`, { email }, { responseType: 'text' });
+  }
 
-    if (updates.email.toLowerCase() !== user.email.toLowerCase()) {
-      const emailExists = this.data
-        .getUsers()
-        .some((u) => u.id !== user.id && u.email.toLowerCase() === updates.email.toLowerCase());
-      if (emailExists) return { ok: false, error: 'An account with that email already exists.' };
+  verifyOtp(email: string, otp: string): Observable<string> {
+    if (USE_MOCK) {
+      return of('OTP verified successfully (Mock Mode)');
+    }
+    return this.http.post(`${this.baseUrl}/verify-otp`, { email, otp }, { responseType: 'text' });
+  }
+
+  registerAgent(agent: RegisterAgentRequest): Observable<any> {
+    if (USE_MOCK) {
+      return of({ agentId: 1001 });
+    }
+    return this.http.post(`${this.baseUrl}/register-agent`, agent);
+  }
+
+  registerCustomer(customer: RegisterCustomerRequest): Observable<any> {
+    if (USE_MOCK) {
+      return of({ customerId: 2001 });
+    }
+    return this.http.post(`${this.baseUrl}/register-customer`, customer);
+  }
+
+  login(email: string, password: string, role: Role): Observable<LoginResponse> {
+    if (USE_MOCK) {
+      localStorage.setItem('jwt_token', 'mock-jwt-token');
+      localStorage.setItem('role', role);
+      this._token.set('mock-jwt-token');
+      this._role.set(role);
+      this._currentEmail.set(email);
+      this.loadUserProfile();
+      return of({
+        token: 'mock-jwt-token',
+        role: role,
+        message: `${role === 'AGENT' ? 'Agent' : 'Customer'} logged in successfully (Mock Mode)`
+      });
     }
 
-    const updatedUser = this.data.updateUser(user.id, updates);
-    if (!updatedUser) return { ok: false, error: 'Failed to update profile.' };
-
-    this._current.set(updatedUser);
-    return { ok: true };
+    return this.http.post<LoginResponse>(`${this.baseUrl}/login`, { email, password, role }).pipe(
+      tap((res) => {
+        if (res && res.token) {
+          localStorage.setItem('jwt_token', res.token);
+          localStorage.setItem('role', res.role);
+          this._token.set(res.token);
+          this._role.set(res.role);
+          const decoded = this.decodeToken(res.token);
+          if (decoded) {
+            this._currentEmail.set(decoded.sub || '');
+          }
+          this.loadUserProfile();
+        }
+      })
+    );
   }
 
   logout() {
-    this._current.set(null);
-    localStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem('jwt_token');
+    localStorage.removeItem('role');
+    this._token.set(null);
+    this._role.set(null);
+    this._currentEmail.set('');
+    this._profileDetails.set(null);
   }
 }

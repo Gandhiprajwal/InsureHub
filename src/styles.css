@@ -1,3 +1,5 @@
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
 /* InsureHub design system - vanilla CSS layered on Bootstrap */
 
 :root {
@@ -7,6 +9,7 @@
   --ih-success: #10b981;
   --ih-danger: #ef4444;
   --ih-warning: #f59e0b;
+
   --ih-bg: #f6f7fb;
   --ih-surface: #ffffff;
   --ih-text: #0f172a;
@@ -247,3 +250,27 @@ body {
 .ih-table tbody td {
   white-space: nowrap;
 }
+
+/* Premium Dialog glassmorphic overlay */
+.cdk-overlay-backdrop {
+  background: rgba(15, 23, 42, 0.35) !important;
+  backdrop-filter: blur(5px) !important;
+  transition: backdrop-filter 0.2s ease, background 0.2s ease;
+}
+
+.mat-mdc-dialog-container, .mat-dialog-container {
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Validation Highlights */
+.form-control.is-invalid, .form-select.is-invalid {
+  border-color: var(--ih-danger) !important;
+  background-image: none !important;
+}
+
+.form-control.is-invalid:focus, .form-select.is-invalid:focus {
+  box-shadow: 0 0 0 .2rem rgba(239, 68, 68, 0.15) !important;
+}
+

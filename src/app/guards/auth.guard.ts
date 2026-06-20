@@ -1,7 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { Role } from '../models/models';
 
 export const authGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
@@ -11,13 +10,14 @@ export const authGuard: CanActivateFn = () => {
   return false;
 };
 
-export const roleGuard = (role: Role): CanActivateFn => {
+export const roleGuard = (role: string): CanActivateFn => {
   return () => {
     const auth = inject(AuthService);
     const router = inject(Router);
-    const u = auth.current();
-    if (u && u.role === role) return true;
-    router.navigate([u?.role === 'agent' ? '/agent' : '/login']);
+    const userRole = auth.role();
+    if (userRole && userRole.toUpperCase() === role.toUpperCase()) return true;
+    router.navigate([userRole === 'AGENT' ? '/agent' : (userRole === 'CUSTOMER' ? '/customer' : '/login')]);
     return false;
   };
 };
+

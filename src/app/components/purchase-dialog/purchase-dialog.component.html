@@ -1,0 +1,116 @@
+<div class="purchase-dialog-wrapper">
+  <!-- Dialog Header -->
+  <div class="dialog-header d-flex justify-content-between align-items-center">
+    <div>
+      <h5 class="dialog-title">Secure New Protection</h5>
+      <p class="dialog-subtitle">Configure your custom coverage plan below</p>
+    </div>
+    <button type="button" class="btn-close-custom" (click)="dialogRef.close()" aria-label="Close">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <form [formGroup]="purchaseForm" (ngSubmit)="onSubmit()">
+    <!-- Grid selection for Policy Type -->
+    <div class="mb-4">
+      <label class="form-label-custom">Select Policy Type</label>
+      <div class="policy-grid">
+        <div class="grid-card life" 
+             [class.active]="purchaseForm.value.policyType === 'LIFEINSURANCE'"
+             (click)="setPolicyType('LIFEINSURANCE')">
+          <div class="icon-circle"><i class="bi bi-heart-pulse-fill"></i></div>
+          <span class="card-name">Life Cover</span>
+        </div>
+        <div class="grid-card health" 
+             [class.active]="purchaseForm.value.policyType === 'HEALTHINSURANCE'"
+             (click)="setPolicyType('HEALTHINSURANCE')">
+          <div class="icon-circle"><i class="bi bi-activity"></i></div>
+          <span class="card-name">Health Plan</span>
+        </div>
+        <div class="grid-card home" 
+             [class.active]="purchaseForm.value.policyType === 'HOMEINSURANCE'"
+             (click)="setPolicyType('HOMEINSURANCE')">
+          <div class="icon-circle"><i class="bi bi-house-fill"></i></div>
+          <span class="card-name">Home Protect</span>
+        </div>
+        <div class="grid-card vehicle" 
+             [class.active]="purchaseForm.value.policyType === 'VEHICLEINSURANCE'"
+             (click)="setPolicyType('VEHICLEINSURANCE')">
+          <div class="icon-circle"><i class="bi bi-car-front-fill"></i></div>
+          <span class="card-name">Vehicle Secure</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Premium and Term fields -->
+    <div class="row g-3 mb-3">
+      <div class="col-12 col-sm-6">
+        <label class="form-label-custom">Premium Amount</label>
+        <div class="input-group-custom">
+          <span class="input-icon"><i class="bi bi-currency-rupee"></i></span>
+          <input type="number" 
+                 class="form-control-custom" 
+                 formControlName="premiumAmount" 
+                 placeholder="e.g. 5000" 
+                 [class.is-invalid]="f['premiumAmount'].touched && f['premiumAmount'].invalid" />
+        </div>
+        <div class="invalid-feedback-custom" *ngIf="f['premiumAmount'].touched && f['premiumAmount'].invalid">
+          Min amount is ₹100.
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6">
+        <label class="form-label-custom">Term Duration (Years)</label>
+        <div class="input-group-custom">
+          <span class="input-icon"><i class="bi bi-hourglass-split"></i></span>
+          <input type="number" 
+                 class="form-control-custom" 
+                 formControlName="termInYears" 
+                 placeholder="e.g. 10" 
+                 [class.is-invalid]="f['termInYears'].touched && f['termInYears'].invalid" />
+        </div>
+        <div class="invalid-feedback-custom" *ngIf="f['termInYears'].touched && f['termInYears'].invalid">
+          Limit 1 - 50 yrs.
+        </div>
+      </div>
+    </div>
+
+    <!-- Start Date and Nominee fields -->
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-sm-6">
+        <label class="form-label-custom">Policy Start Date</label>
+        <div class="input-group-custom">
+          <span class="input-icon"><i class="bi bi-calendar-event"></i></span>
+          <input type="date" 
+                 class="form-control-custom" 
+                 formControlName="policyStartDate" 
+                 [class.is-invalid]="f['policyStartDate'].touched && f['policyStartDate'].invalid" />
+        </div>
+      </div>
+
+      <div class="col-12 col-sm-6">
+        <label class="form-label-custom">Nominee Name</label>
+        <div class="input-group-custom">
+          <span class="input-icon"><i class="bi bi-person-fill"></i></span>
+          <input type="text" 
+                 class="form-control-custom" 
+                 formControlName="nominee" 
+                 placeholder="e.g. Jane Doe" 
+                 [class.is-invalid]="f['nominee'].touched && f['nominee'].invalid" />
+        </div>
+        <div class="invalid-feedback-custom" *ngIf="f['nominee'].touched && f['nominee'].invalid">
+          Nominee name is required.
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="d-flex justify-content-end gap-3 pt-2">
+      <button type="button" class="btn-cancel" (click)="dialogRef.close()">Cancel</button>
+      <button type="submit" class="btn-submit" [disabled]="purchaseForm.invalid || submitting()">
+        <span class="spinner-border spinner-border-sm me-1" *ngIf="submitting()"></span>
+        {{ submitting() ? 'Creating...' : 'Purchase Policy' }}
+      </button>
+    </div>
+  </form>
+</div>

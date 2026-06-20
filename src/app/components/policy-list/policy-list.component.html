@@ -1,116 +1,58 @@
-@if (policies().length === 0) {
-  <div class="ih-card empty-state">
-    <div class="icon"><i class="bi bi-inbox"></i></div>
-    <div>No policies on record.</div>
-  </div>
-} @else {
-  <div class="row g-3">
-    @for (p of policies(); track p.id) {
-      <div class="col-12 col-md-6 col-xl-4">
-        <div class="ih-card h-100 d-flex flex-column">
-          <div class="d-flex justify-content-between align-items-start mb-2">
-            <span class="type-pill" [class]="'type-pill type-' + p.type">
-              <i class="bi" [class.bi-heart-pulse-fill]="p.type === 'Life'"
-                            [class.bi-bandaid-fill]="p.type === 'Health'"
-                            [class.bi-house-fill]="p.type === 'Home'"
-                            [class.bi-car-front-fill]="p.type === 'Vehicle'"></i>
-              {{ p.type }}
-            </span>
-            @switch (status(p)) {
-              @case ('Active') { <span class="badge-status badge-active"><span class="pip"></span>Active</span> }
-              @case ('Due')    { <span class="badge-status badge-due"><span class="pip"></span>Due Soon</span> }
-              @case ('Lapsed') { <span class="badge-status badge-lapsed"><span class="pip"></span>Lapsed</span> }
-            }
-          </div>
+<div *ngIf="normalizedPolicies().length === 0" class="ih-card empty-state">
+  <div class="icon"><i class="bi bi-inbox"></i></div>
+  <div>No policies on record.</div>
+</div>
 
-          <div class="text-muted-2" style="font-size:.78rem">POLICY NO.</div>
-          <div style="font-weight:600;font-family:ui-monospace,monospace">{{ p.policyNumber }}</div>
+<div *ngIf="normalizedPolicies().length > 0" class="row g-3">
+  <div *ngFor="let p of normalizedPolicies()" class="col-12 col-md-6 col-xl-4">
+    <div class="ih-card h-100 d-flex flex-column">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <span class="type-pill" [class]="'type-pill type-' + p.type">
+          <i class="bi" [class.bi-heart-pulse-fill]="p.type === 'Life'"
+                        [class.bi-bandaid-fill]="p.type === 'Health'"
+                        [class.bi-house-fill]="p.type === 'Home'"
+                        [class.bi-car-front-fill]="p.type === 'Vehicle'"></i>
+          {{ p.type }} Insurance
+        </span>
+        <span [ngSwitch]="status(p)">
+          <span *ngSwitchCase="'Active'" class="badge-status badge-active"><span class="pip"></span>Active</span>
+          <span *ngSwitchCase="'Due'" class="badge-status badge-due"><span class="pip"></span>Due Soon</span>
+          <span *ngSwitchCase="'Lapsed'" class="badge-status badge-lapsed"><span class="pip"></span>Lapsed</span>
+        </span>
+      </div>
 
-          <div class="row mt-3 g-2">
-            <div class="col-6">
-              <div class="text-muted-2" style="font-size:.75rem">Premium / yr</div>
-              <div style="font-weight:700">₹{{ p.premium | number:'1.0-0' }}</div>
-            </div>
-            <div class="col-6">
-              <div class="text-muted-2" style="font-size:.75rem">Coverage</div>
-              <div style="font-weight:700">₹{{ p.coverage | number:'1.0-0' }}</div>
-            </div>
-            <div class="col-6">
-              <div class="text-muted-2" style="font-size:.75rem">Renewal</div>
-              <div style="font-weight:600">{{ p.renewalDate | date:'mediumDate' }}</div>
-            </div>
-            <div class="col-6">
-              <div class="text-muted-2" style="font-size:.75rem">Grace Until</div>
-              <div style="font-weight:600">{{ p.dueDate | date:'mediumDate' }}</div>
-            </div>
-          </div>
+      <div class="text-muted-2" style="font-size:.78rem">POLICY ID</div>
+      <div style="font-weight:600;font-family:ui-monospace,monospace">{{ p.policyNumber }}</div>
 
-          @if (!readonly()) {
-            <div class="mt-3">
-              @if (status(p) === 'Active') {
-                <button class="btn btn-outline-primary w-100" (click)="openPay(p)">
-                  <i class="bi bi-arrow-clockwise me-1"></i> Renew Early
-                </button>
-              } @else {
-                <button class="btn btn-primary w-100" (click)="openPay(p)">
-                  <i class="bi bi-credit-card-fill me-1"></i>
-                  {{ status(p) === 'Lapsed' ? 'Reactivate · Pay' : 'Renew · Pay' }}
-                  ₹{{ p.premium | number:'1.0-0' }}
-                </button>
-              }
-            </div>
-          }
+      <div class="row mt-3 g-2">
+        <div class="col-6">
+          <div class="text-muted-2" style="font-size:.75rem">Premium</div>
+          <div style="font-weight:700">₹{{ p.premium | number:'1.0-0' }}</div>
+        </div>
+        <div class="col-6">
+          <div class="text-muted-2" style="font-size:.75rem">Coverage</div>
+          <div style="font-weight:700">₹{{ p.coverage | number:'1.0-0' }}</div>
+        </div>
+        <div class="col-6">
+          <div class="text-muted-2" style="font-size:.75rem">Start Date</div>
+          <div style="font-weight:600">{{ p.startDate | date:'mediumDate' }}</div>
+        </div>
+        <div class="col-6">
+          <div class="text-muted-2" style="font-size:.75rem">Renewal Date</div>
+          <div style="font-weight:600">{{ p.renewalDate | date:'mediumDate' }}</div>
         </div>
       </div>
-    }
-  </div>
-}
 
-<!-- Pay modal -->
-@if (paying(); as p) {
-  <div class="modal d-block" tabindex="-1" style="background:rgba(15,23,42,.5)">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header border-0 pb-0">
-          <h5 class="modal-title" style="font-weight:700">Renew {{ p.type }} Policy</h5>
-          <button type="button" class="btn-close" (click)="paying.set(null)"></button>
-        </div>
-        <div class="modal-body pt-2">
-          <div class="ih-card mb-3" style="background:#f8fafc">
-            <div class="d-flex justify-content-between"><span class="text-muted-2">Policy</span><strong>{{ p.policyNumber }}</strong></div>
-            <div class="d-flex justify-content-between mt-1"><span class="text-muted-2">Coverage</span><strong>₹{{ p.coverage | number:'1.0-0' }}</strong></div>
-            <div class="d-flex justify-content-between mt-1"><span class="text-muted-2">Premium</span><strong>₹{{ p.premium | number:'1.0-0' }}</strong></div>
-            <div class="d-flex justify-content-between mt-1"><span class="text-muted-2">GST (18%)</span><strong>₹{{ (p.premium * 0.18) | number:'1.0-0' }}</strong></div>
-            <hr class="my-2" />
-            <div class="d-flex justify-content-between"><span style="font-weight:600">Total</span>
-              <strong style="color:var(--ih-primary)">₹{{ (p.premium * 1.18) | number:'1.0-0' }}</strong>
-            </div>
-          </div>
-          <div class="mb-2">
-            <label class="form-label">Card Number</label>
-            <input class="form-control" value="4242 4242 4242 4242" disabled />
-          </div>
-          <div class="row g-2">
-            <div class="col-6">
-              <label class="form-label">Expiry</label>
-              <input class="form-control" value="12 / 28" disabled />
-            </div>
-            <div class="col-6">
-              <label class="form-label">CVC</label>
-              <input class="form-control" value="•••" disabled />
-            </div>
-          </div>
-          <div class="text-muted-2 mt-2" style="font-size:.78rem">
-            <i class="bi bi-info-circle me-1"></i> Demo payment — no real card is charged.
-          </div>
-        </div>
-        <div class="modal-footer border-0">
-          <button class="btn btn-outline-secondary" (click)="paying.set(null)">Cancel</button>
-          <button class="btn btn-primary" (click)="confirmPay()">
-            <i class="bi bi-shield-check me-1"></i> Pay & Renew for 1 Year
-          </button>
-        </div>
+      <div *ngIf="!readonly" class="mt-auto pt-3">
+        <button *ngIf="status(p) === 'Active'" class="btn btn-outline-primary w-100" (click)="openPay(p)">
+          <i class="bi bi-arrow-clockwise me-1"></i> Renew Early
+        </button>
+        <button *ngIf="status(p) !== 'Active'" class="btn btn-primary w-100" (click)="openPay(p)">
+          <i class="bi bi-credit-card-fill me-1"></i>
+          {{ status(p) === 'Lapsed' ? 'Reactivate · Pay' : 'Renew · Pay' }}
+          ₹{{ p.premium | number:'1.0-0' }}
+        </button>
       </div>
     </div>
   </div>
-}
+</div>

@@ -1,0 +1,103 @@
+<div class="p-3 p-sm-4" style="width: 100%; max-width: 500px; box-sizing: border-box; margin: 0 auto;">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="m-0" style="font-weight: 700; letter-spacing: -0.02em;">Renew Policy</h4>
+    <button type="button" class="btn-close" (click)="dialogRef.close()"></button>
+  </div>
+
+  <div *ngIf="loading()" class="text-center py-4">
+    <div class="spinner-border text-primary" role="status"></div>
+    <div class="text-muted-2 mt-2" style="font-size: 0.9rem;">Fetching renewal details...</div>
+  </div>
+
+  <div *ngIf="!loading() && preview()">
+    <!-- Read-Only Policy Details -->
+    <div class="mb-4 p-3 style-preview-card" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.9rem;">
+      <div class="row g-2">
+        <div class="col-6">
+          <span class="text-muted-2">Policy ID</span>
+          <div class="fw-semibold">{{ preview()?.policyId }}</div>
+        </div>
+        <div class="col-6">
+          <span class="text-muted-2">Type</span>
+          <div class="fw-semibold text-truncate">{{ formatType(preview()?.policyType) }}</div>
+        </div>
+        <div class="col-6">
+          <span class="text-muted-2">Original Premium</span>
+          <div class="fw-semibold">₹{{ preview()?.originalPremiumAmount | number:'1.0-2' }}</div>
+        </div>
+        <div class="col-6">
+          <span class="text-muted-2">Penalty Amount</span>
+          <div class="fw-semibold text-danger">+ ₹{{ preview()?.penaltyAmount | number:'1.0-2' }}</div>
+        </div>
+        <div class="col-12 mt-2 pt-2 border-top">
+          <span class="text-muted-2">Renewal Premium Amount</span>
+          <div class="h5 m-0 fw-bold text-primary">₹{{ preview()?.renewalPremiumAmount | number:'1.0-2' }}</div>
+        </div>
+        <div class="col-12 mt-1">
+          <span class="text-muted-2">Policy Status:</span>
+          <span class="badge-status mx-1" [ngClass]="getStatusClass(preview()?.policyStatus)">
+            <span class="pip"></span> {{ preview()?.policyStatus }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Details Form -->
+    <h6 class="mb-3" style="font-weight: 700; letter-spacing: -0.01em;">Card Payment Details</h6>
+    <form [formGroup]="paymentForm" (ngSubmit)="onSubmit()">
+      <div class="mb-3">
+        <label class="form-label">Card Holder Name</label>
+        <input class="form-control" formControlName="cardHolderName" placeholder="e.g. Rahul Sharma" [class.is-invalid]="f['cardHolderName'].touched && f['cardHolderName'].invalid" />
+        <div class="invalid-feedback d-block" *ngIf="f['cardHolderName'].touched && f['cardHolderName'].invalid">
+          Cardholder name is required.
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Card Number</label>
+        <input class="form-control" formControlName="cardNumber" placeholder="4111 1111 1111 1111" maxlength="19" (input)="onCardNumberInput($event)" [class.is-invalid]="f['cardNumber'].touched && f['cardNumber'].invalid" />
+        <div class="invalid-feedback d-block" *ngIf="f['cardNumber'].touched && f['cardNumber'].invalid">
+          Please enter a valid 16-digit card number.
+        </div>
+      </div>
+
+      <div class="row g-2 mb-3">
+        <div class="col-6 col-sm-4">
+          <label class="form-label">Expiry MM</label>
+          <select class="form-select" formControlName="expiryMonth" [class.is-invalid]="f['expiryMonth'].touched && f['expiryMonth'].invalid">
+            <option value="" disabled selected>MM</option>
+            <option *ngFor="let m of months" [value]="m">{{ m }}</option>
+          </select>
+          <div class="invalid-feedback d-block" *ngIf="f['expiryMonth'].touched && f['expiryMonth'].invalid">
+            Required.
+          </div>
+        </div>
+        <div class="col-6 col-sm-4">
+          <label class="form-label">Expiry YYYY</label>
+          <select class="form-select" formControlName="expiryYear" [class.is-invalid]="f['expiryYear'].touched && f['expiryYear'].invalid">
+            <option value="" disabled selected>YYYY</option>
+            <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+          </select>
+          <div class="invalid-feedback d-block" *ngIf="f['expiryYear'].touched && f['expiryYear'].invalid">
+            Required.
+          </div>
+        </div>
+        <div class="col-12 col-sm-4">
+          <label class="form-label">CVV</label>
+          <input class="form-control text-center" formControlName="cvv" placeholder="123" maxlength="3" type="password" [class.is-invalid]="f['cvv'].touched && f['cvv'].invalid" />
+          <div class="invalid-feedback d-block" *ngIf="f['cvv'].touched && f['cvv'].invalid">
+            Invalid CVV.
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        <button type="button" class="btn btn-outline-secondary" (click)="dialogRef.close()">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="paymentForm.invalid || submitting()">
+          <span class="spinner-border spinner-border-sm me-1" *ngIf="submitting()"></span>
+          {{ submitting() ? 'Processing...' : 'Pay & Renew' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
